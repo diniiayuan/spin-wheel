@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Names </title>
+    <title>Wheel of Names Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --primary-blue: #448aff; --bg-color: #f0f2f5; }
         body { font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; background-color: var(--bg-color); margin: 0; padding: 20px; }
@@ -147,6 +149,26 @@ Dewi</div>
         const colors = ['#3369e8', '#d50f25', '#eeb211', '#009925', '#f4b400', '#db4437', '#9c27b0', '#00bcd4'];
         let items = [], currentRotation = 0, isSpinning = false, lastWinnerIdx = -1, wheelBgImage = null, centerLogo = null, activeTarget = "";
 
+        // Fungsi Baru untuk Efek Confetti
+        function fireConfetti() {
+            const count = 200;
+            const defaults = { origin: { y: 0.7 }, zIndex: 2000 };
+
+            function fire(particleRatio, opts) {
+                confetti({
+                    ...defaults,
+                    ...opts,
+                    particleCount: Math.floor(count * particleRatio)
+                });
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
         // UI & Upload Logic
         function openAddImage() { closeAll(); document.getElementById("modalTarget").style.display = "flex"; }
         function chooseTarget(t) { activeTarget = t; document.getElementById("modalTarget").style.display = "none"; document.getElementById("modalSource").style.display = "flex"; }
@@ -187,7 +209,6 @@ Dewi</div>
 
         function closeAll() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = "none"); }
 
-        // Wheel Rendering Logic
         function syncFromVisual() {
             let newItems = [];
             const temp = document.createElement('div');
@@ -265,6 +286,10 @@ Dewi</div>
                     if (norm < 0) norm += Math.PI * 2;
                     lastWinnerIdx = Math.floor(norm / ((Math.PI * 2) / items.length));
                     const winner = items[lastWinnerIdx];
+                    
+                    // Trigger Efek Confetti saat menang
+                    fireConfetti();
+
                     document.getElementById('displayWinnerName').innerText = winner.name || "Image Winner!";
                     document.getElementById('winnerImgContainer').innerHTML = winner.image ? `<img src="${winner.image.src}" style="width:150px; border-radius:10px; margin-bottom:15px">` : "";
                     document.getElementById('modalWinnerHeader').style.backgroundColor = updatePointerColor();
