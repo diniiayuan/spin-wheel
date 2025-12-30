@@ -3,332 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel of Names Pro</title>
+    <title>Wheel of Names - Navbar & Speed Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --primary-blue: #448aff; --bg-color: #f0f2f5; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; display: flex; flex-direction: column; align-items: center; background-color: var(--bg-color); margin: 0; padding: 20px; }
+        :root { 
+            --primary-blue: #5ba3f5; 
+            --soft-blue: #e6f4ff;    
+            --text-main: #2d3748;    
+            --nav-dark: #0f172a; 
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; padding: 0; color: var(--text-main);
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e3f2fd 0%, #fce4ec 100%);
+            background-attachment: fixed;
+        }
+
+        /* --- NAVBAR STYLING --- */
+        .navbar {
+            width: 100%;
+            background-color: var(--nav-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 40px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #f1c40f;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .nav-item:hover { opacity: 0.8; }
+        .nav-item input[type="checkbox"] { cursor: pointer; width: 17px; height: 17px; }
+
+        .duration-box {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 12px;
+            border-radius: 8px;
+        }
+        .duration-input {
+            width: 45px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: 700;
+            color: #f1c40f;
+            outline: none;
+            font-size: 15px;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .main-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; max-width: 1300px; width: 100%; margin-top: 30px; padding-bottom: 50px; }
         
-        .main-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; max-width: 1100px; width: 100%; margin-top: 30px; }
-        .wheel-section { position: relative; }
-        #canvas { background: white; border-radius: 50%; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 8px solid #fff; cursor: pointer; }
+        .wheel-section { 
+            position: relative; width: 700px; height: 700px; 
+            filter: drop-shadow(0 20px 50px rgba(0,0,0,0.08));
+        }
+        
+        #canvas { background: white; border-radius: 50%; border: 12px solid #ffffff; cursor: pointer; }
         
         #pointer { 
             position: absolute; top: 50%; right: -25px; transform: translateY(-50%);
             width: 0; height: 0; border-top: 25px solid transparent; border-bottom: 25px solid transparent; 
-            border-right: 45px solid #ccc; z-index: 10; filter: drop-shadow(-2px 0 2px rgba(0,0,0,0.2));
+            border-right: 45px solid #334155; z-index: 10;
         }
 
-        .controls-section { width: 380px; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .controls-section { 
+            width: 380px; background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e1f5fe;
+            backdrop-filter: blur(8px);
+        }
+        .controls-section.hidden-mode { display: none; }
+
+        .tabs-header { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 5px; }
+        .tab-item { cursor: pointer; font-weight: 600; color: #94a3b8; display: flex; align-items: center; gap: 8px; padding: 8px 0; transition: 0.3s; }
+        .tab-item.active { color: var(--primary-blue); border-bottom: 2px solid var(--primary-blue); }
+        .tab-count { background: #cbd5e1; color: white; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+
         .button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .btn-blue { background: var(--primary-blue); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
-        .btn-blue:hover { opacity: 0.9; }
-        
-        #namesInput { 
-            height: 350px; padding: 15px; border-radius: 10px; border: 1px solid #ddd; 
-            overflow-y: auto; outline: none; background: white; font-size: 18px; 
-            line-height: 1.5; white-space: pre-wrap; margin-top: 10px;
+        .btn-blue { 
+            background: var(--primary-blue); color: white; border: none; padding: 12px; 
+            border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px; 
+            transition: all 0.2s; box-shadow: 0 4px 12px rgba(0, 149, 255, 0.2);
         }
-        #namesInput img { width: 45px; height: 45px; border-radius: 5px; vertical-align: middle; margin: 2px; border: 1px solid #ddd; }
+        .btn-blue:hover:not(:disabled) { background: #0076cc; transform: translateY(-2px); }
+        .btn-blue:disabled { background: #cbd5e1; cursor: not-allowed; opacity: 0.6; }
 
-        /* MODAL STYLE */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); display: none;
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: white; width: 450px; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.3); animation: scaleUp 0.2s ease;
-        }
-        @keyframes scaleUp { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        
-        .modal-header { background: var(--primary-blue); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 30px 20px; text-align: center; }
-        .winner-name { font-size: 42px; font-weight: bold; color: #333; margin: 10px 0; }
-        .modal-footer { background: #f8f9fa; padding: 15px 20px; display: flex; justify-content: flex-end; gap: 15px; }
-        
-        .btn-close-flat { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; font-weight: 600; }
-        .btn-remove-winner { background: var(--primary-blue); color: white; border: none; padding: 10px 25px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 12px 24px; border-radius: 8px;
-            display: none; align-items: center; gap: 20px; z-index: 2000;
-            font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        #namesInput, #resultsList { 
+            height: 450px; padding: 15px; border-radius: 12px; border: 1px solid #e1f5fe; 
+            overflow-y: auto; outline: none; background: linear-gradient(135deg, #fafafa, #fef7ff); font-size: 18px; 
+            color: var(--text-main); line-height: 1.6;
         }
 
-        .option-item { border: 2px solid #eee; padding: 15px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; font-weight: 600; text-align: center; transition: 0.2s; }
-        .option-item:hover { border-color: var(--primary-blue); background: #f0f7ff; }
-        
+        .auto-remove-container {
+            margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e3f2fd, #fce4ec); border-radius: 12px; 
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+        }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; width: 500px; border-radius: 24px; overflow: hidden; }
+        .modal-header { background: white; color: var(--text-main); padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+        .modal-body { padding: 25px; text-align: center; max-height: 500px; overflow-y: auto; }
+        .modal-footer { padding: 15px 25px; background: linear-gradient(135deg, #e3f2fd, #fce4ec); display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #e1f5fe; }
+        .option-card { border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 12px; cursor: pointer; border-radius: 14px; transition: 0.2s; font-weight: 600; text-align: left; background: white; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 15px; }
+        .gallery-item { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; cursor: pointer; border: 3px solid transparent; }
+        .gallery-item.selected { border-color: var(--primary-blue); }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 14px 28px; border-radius: 12px; display: none; align-items: center; gap: 15px; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 14px; }
+        img.list-img { height: 50px; width: 50px; object-fit: cover; border-radius: 8px; margin-bottom: 5px; display: block; }
         #fileInput { display: none; }
+        #displayWinnerName { font-size: 48px !important; color: var(--primary-blue) !important; margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <h1 style="color: #2c3e50;">🎡 Wheel of Names</h1>
+    <nav class="navbar">
+        <div class="nav-logo">🎡 WHEEL OF NAMES</div>
+        
+        <div class="nav-links">
+            <div class="nav-item" onclick="createNewWheel()">
+                <span>📄</span> Baru
+            </div>
+            <div class="nav-item">
+                <input type="checkbox" id="hideArea" onchange="toggleHide()"> 
+                <label for="hideArea" style="cursor:pointer">Sembunyikan Editor</label>
+            </div>
+            <div class="nav-item duration-box">
+                <span>⏱️</span>
+                <input type="number" id="spinDuration" class="duration-input" value="4.5" step="0.5" min="1">
+                <span>detik</span>
+            </div>
+        </div>
+    </nav>
 
     <div class="main-container">
         <div class="wheel-section">
             <div id="pointer"></div>
-            <canvas id="canvas" width="500" height="500"></canvas>
+            <canvas id="canvas" width="700" height="700" onclick="handleSpinClick()"></canvas>
         </div>
-        <div class="controls-section">
-            <div class="button-grid">
-                <button class="btn-blue" onclick="shuffleItems()">🔀 Shuffle</button>
-                <button class="btn-blue" onclick="sortItems()">⬆️ Sort A-Z</button>
+
+        <div class="controls-section" id="mainControls">
+            <div class="tabs-header">
+                <div class="tab-item active" id="tabEntries" onclick="switchTab('entries')">Entries <span class="tab-count" id="countEntries">0</span></div>
+                <div class="tab-item" id="tabResults" onclick="switchTab('results')">Results <span class="tab-count" id="countResults">0</span></div>
             </div>
-            <button class="btn-blue" style="width:100%" onclick="openAddImage()">🖼️ Add Image</button>
-            <div id="namesInput" contenteditable="true" oninput="syncFromVisual()">Budi
-Siti
-Andi
-Dewi</div>
+            
+            <div id="entriesButtons">
+                <div class="button-grid">
+                    <button id="btnShuffle" class="btn-blue" onclick="shuffleItems()">🔀 Shuffle</button>
+                    <button id="btnSort" class="btn-blue" onclick="sortItems()">⬆️ Sort A-Z</button>
+                </div>
+                <button id="btnCust" class="btn-blue" style="width:100%; margin-bottom:10px; background: linear-gradient(135deg, #fce4ec, #f8bbd9); color: #c2185b; border: 1px dashed #f06292; box-shadow: none;" onclick="if(!isSpinning) document.getElementById('modalType').style.display='flex'">🎨 Customize Wheel</button>
+                
+                <div class="auto-remove-container">
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">Auto-remove winner</span>
+                    <input type="checkbox" id="autoRemoveToggle">
+                </div>
+            </div>
+
+            <div id="resultsButtons" style="display:none">
+                <button id="btnClear" class="btn-blue" style="background:#fee2e2; color:#ef4444; width:100%; margin-bottom:10px;" onclick="clearResults()">🗑️ Clear Data</button>
+            </div>
+
+            <div id="namesInput" contenteditable="true" oninput="syncFromVisual()">Akbar<br>Budi<br>Sarah<br>Dinda</div>
+            <div id="resultsList" style="display:none"></div>
         </div>
     </div>
 
-    <div id="modalTarget" class="modal-overlay">
+    <div id="toast" class="toast"><span id="toastMsg"></span></div>
+
+    <div id="modalType" class="modal-overlay">
         <div class="modal-content">
-            <div class="modal-header"><h3>Select Image Purpose</h3><span onclick="closeAll()" style="cursor:pointer; font-size:24px">&times;</span></div>
+            <div class="modal-header"><h3>Select Target</h3><span onclick="closeModals()" style="cursor:pointer; font-size:24px">&times;</span></div>
             <div class="modal-body">
-                <div class="option-item" onclick="chooseTarget('bg')">🟡 Add Background Image</div>
-                <div class="option-item" onclick="chooseTarget('center')">🎯 Add Center Image (Spinning)</div>
-                <div class="option-item" onclick="chooseTarget('entry')">🍕 Add Entry as Image</div>
+                <div class="option-card" onclick="goToStep2('bg')">🖼️ Add Wheel Background</div>
+                <div class="option-card" onclick="goToStep2('center')">🎯 Add Center Logo</div>
+                <div class="option-card" onclick="goToStep2('entry')">🍕 Add Image Entry</div>
             </div>
         </div>
     </div>
-    
+
     <div id="modalSource" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header"><h3>Select Image Source</h3><span onclick="closeAll()" style="cursor:pointer; font-size:24px">&times;</span></div>
+        <div class="modal-content" style="width: 550px;">
+            <div class="modal-header"><h3>Select Image</h3><span onclick="closeModals()" style="cursor:pointer; font-size:24px">&times;</span></div>
             <div class="modal-body">
-                <div class="option-item" onclick="triggerUpload()">📤 Upload from Device</div>
-                <div class="option-item" onclick="openGallery()">🖼️ Choose from Gallery</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalGallery" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header"><h3>Sample Gallery</h3><span onclick="closeAll()" style="cursor:pointer; font-size:24px">&times;</span></div>
-            <div class="modal-body" id="galleryGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-height: 300px; overflow-y: auto;">
+                <div class="option-card" onclick="triggerFileUpload()" style="border-style: dashed; text-align: center; background: #fafafa;">📤 Upload from Device</div>
+                <div class="gallery-grid" id="galleryGrid"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn-close-flat" onclick="closeAll()">Cancel</button>
+                <button onclick="closeModals()" style="background:none; border:none; cursor:pointer; color:#64748b; font-weight:600;">Cancel</button>
+                <button class="btn-blue" style="width:auto; margin:0; padding: 8px 25px;" onclick="confirmGallerySelection()">Confirm</button>
             </div>
         </div>
     </div>
 
     <div id="winnerModal" class="modal-overlay">
         <div class="modal-content">
-            <div id="modalWinnerHeader" class="modal-header">
-                <h3 style="margin:0">We Have a Winner!</h3>
-                <span style="cursor:pointer; font-size:24px" onclick="closeAll()">&times;</span>
-            </div>
+            <div class="modal-header"><h3>Winner!</h3><span onclick="closeWin()" style="cursor:pointer; font-size:24px">&times;</span></div>
             <div class="modal-body">
                 <div id="winnerImgContainer"></div>
-                <p class="winner-name" id="displayWinnerName">Winner</p>
+                <p id="displayWinnerName"></p>
             </div>
-            <div class="modal-footer">
-                <button class="btn-close-flat" onclick="closeAll()">Close</button>
-                <button class="btn-remove-winner" onclick="removeWinner()">Remove Winner</button>
-            </div>
+            <div class="modal-footer" id="winnerFooter"></div>
         </div>
     </div>
 
-    <div id="toast" class="toast">
-        <span id="toastMsg">Item Removed</span>
-        <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:bold; font-size:18px">✕</span>
-    </div>
-
     <input type="file" id="fileInput" accept="image/*">
+    <audio id="tickSound"><source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg"></audio>
+    <audio id="winSound"><source src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" type="audio/mpeg"></audio>
 
     <script>
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-        const namesInput = document.getElementById('namesInput'), fileInput = document.getElementById('fileInput');
-        const colors = ['#3369e8', '#d50f25', '#eeb211', '#009925', '#f4b400', '#db4437', '#9c27b0', '#00bcd4'];
-        let items = [], currentRotation = 0, isSpinning = false, lastWinnerIdx = -1, wheelBgImage = null, centerLogo = null, activeTarget = "";
-
-        // Fungsi Baru untuk Efek Confetti
-        function fireConfetti() {
-            const count = 200;
-            const defaults = { origin: { y: 0.7 }, zIndex: 2000 };
-
-            function fire(particleRatio, opts) {
-                confetti({
-                    ...defaults,
-                    ...opts,
-                    particleCount: Math.floor(count * particleRatio)
-                });
-            }
-
-            fire(0.25, { spread: 26, startVelocity: 55 });
-            fire(0.2, { spread: 60 });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-            fire(0.1, { spread: 120, startVelocity: 45 });
-        }
-
-        // UI & Upload Logic
-        function openAddImage() { closeAll(); document.getElementById("modalTarget").style.display = "flex"; }
-        function chooseTarget(t) { activeTarget = t; document.getElementById("modalTarget").style.display = "none"; document.getElementById("modalSource").style.display = "flex"; }
-        function triggerUpload() { fileInput.click(); }
+        const namesInput = document.getElementById('namesInput'), resultsList = document.getElementById('resultsList');
+        const tickSound = document.getElementById('tickSound'), winSound = document.getElementById('winSound');
+        const toast = document.getElementById('toast'), toastMsg = document.getElementById('toastMsg');
+        const pointerEl = document.getElementById('pointer');
+        const colors = ['#d50f25', '#eeb211', '#009925', '#3369e8'];
         
-        fileInput.onchange = (e) => { 
-            const file = e.target.files[0]; 
-            if (file) { 
-                const reader = new FileReader(); 
-                reader.onload = (ev) => applyImage(ev.target.result); 
-                reader.readAsDataURL(file); 
-            } 
-        };
+        let items = [], resultsArr = [], currentRotation = 0, isSpinning = false, lastWinnerIdx = -1;
+        let wheelBg = null, centerLogo = null, activeTarget = '', selectedGalleryUrl = null;
+        let idleAnimationFrame = null, hasBeenSpun = false; 
 
-        function openGallery() { 
-            document.getElementById("modalSource").style.display = "none";
-            const grid = document.getElementById("galleryGrid");
-            const samples = ["https://picsum.photos/id/237/200", "https://picsum.photos/id/200/200", "https://picsum.photos/id/102/200"];
-            grid.innerHTML = samples.map(src => `<img src="${src}" onclick="applyImage('${src}')" style="width:100%; cursor:pointer; border-radius:5px">`).join('');
-            document.getElementById("modalGallery").style.display = "flex";
+        const abstractImages = ["https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200", "https://images.unsplash.com/photo-1557683316-973673baf926?w=200", "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=200", "https://images.unsplash.com/photo-1508615039623-a25605d2b022?w=200", "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200", "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=200", "https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?w=200", "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=200"];
+
+        function showToast(msg) { toastMsg.innerText = msg; toast.style.display = 'flex'; setTimeout(() => { toast.style.display = 'none'; }, 3000); }
+
+        function createNewWheel() {
+            if(isSpinning) return;
+            if(confirm("Buat roda baru? Semua data akan dihapus.")) {
+                namesInput.innerHTML = "Nama 1<br>Nama 2<br>Nama 3";
+                resultsArr = [];
+                updateResultsUI();
+                syncFromVisual();
+                hasBeenSpun = false;
+                startIdleSpin();
+            }
         }
-
-        function applyImage(src) {
-            const img = new Image();
-            img.onload = () => {
-                if (activeTarget === 'bg') wheelBgImage = img;
-                else if (activeTarget === 'center') centerLogo = img;
-                else { 
-                    const newImg = document.createElement('img'); 
-                    newImg.src = src; 
-                    namesInput.appendChild(document.createTextNode("\n")); 
-                    namesInput.appendChild(newImg); 
-                }
-                syncFromVisual(); closeAll();
-            };
-            img.src = src;
-        }
-
-        function closeAll() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = "none"); }
 
         function syncFromVisual() {
+            if(isSpinning) return;
             let newItems = [];
             const temp = document.createElement('div');
             temp.innerHTML = namesInput.innerHTML.replace(/<div>/g, "\n").replace(/<\/div>/g, "").replace(/<br>/g, "\n");
             Array.from(temp.childNodes).forEach(node => {
-                if (node.nodeName === "IMG") newItems.push({ name: "", image: node.cloneNode() });
-                else if (node.nodeType === 3 && node.textContent.trim()) {
-                    node.textContent.split('\n').forEach(line => { if(line.trim()) newItems.push({ name: line.trim(), image: null }); });
+                if(node.nodeName === "IMG") {
+                    const imgObj = new Image(); imgObj.src = node.src;
+                    imgObj.onload = () => drawWheel();
+                    newItems.push({ name: "", image: imgObj });
+                } else if(node.textContent.trim()) {
+                    node.textContent.split('\n').forEach(t => { if(t.trim()) newItems.push({ name: t.trim(), image: null }); });
                 }
             });
-            items = newItems; drawWheel();
-        }
-
-        function drawWheel() {
-            ctx.clearRect(0, 0, 500, 500);
-            if (items.length === 0) return;
-            ctx.save(); ctx.translate(250, 250); ctx.rotate(currentRotation);
-
-            if (wheelBgImage) {
-                ctx.save(); ctx.beginPath(); ctx.arc(0, 0, 240, 0, Math.PI * 2); ctx.clip();
-                ctx.drawImage(wheelBgImage, -250, -250, 500, 500); ctx.restore();
-            }
-
-            const slice = (Math.PI * 2) / items.length;
-            items.forEach((it, i) => {
-                const angle = i * slice;
-                if (!wheelBgImage) {
-                    ctx.beginPath(); ctx.fillStyle = colors[i % colors.length];
-                    ctx.moveTo(0, 0); ctx.arc(0, 0, 240, angle, angle + slice); ctx.fill();
-                    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-                }
-                ctx.save(); ctx.rotate(angle + slice / 2);
-                if (it.image) {
-                    ctx.save(); ctx.beginPath(); ctx.arc(160, 0, 40, 0, Math.PI*2); ctx.clip();
-                    ctx.drawImage(it.image, 120, -40, 80, 80); ctx.restore();
-                } else {
-                    ctx.fillStyle = "#fff"; ctx.font = "bold 24px sans-serif"; ctx.textAlign = "right";
-                    ctx.fillText(it.name, 230, 8);
-                }
-                ctx.restore();
-            });
-
-            if (centerLogo) {
-                ctx.save(); ctx.beginPath(); ctx.arc(0, 0, 60, 0, Math.PI * 2); ctx.clip();
-                ctx.drawImage(centerLogo, -60, -60, 120, 120); ctx.restore();
-            }
-            ctx.restore();
-            updatePointerColor();
-        }
-
-        function updatePointerColor() {
-            if (!items.length) return;
-            let norm = (0 - currentRotation) % (Math.PI * 2);
-            if (norm < 0) norm += Math.PI * 2;
-            const idx = Math.floor(norm / ((Math.PI * 2) / items.length));
-            const color = colors[idx % colors.length];
-            document.getElementById('pointer').style.borderRightColor = color;
-            return color;
-        }
-
-        function spin() {
-            if (isSpinning || items.length === 0) return;
-            isSpinning = true;
-            const extra = (Math.PI * 2) * (15 + Math.random() * 5);
-            const startRot = currentRotation, startTime = performance.now();
-            function anim(now) {
-                const t = Math.min((now - startTime) / 4000, 1);
-                const easeOut = 1 - Math.pow(1 - t, 4);
-                currentRotation = startRot + (extra * easeOut);
-                drawWheel();
-                if (t < 1) requestAnimationFrame(anim);
-                else {
-                    isSpinning = false;
-                    let norm = (0 - currentRotation) % (Math.PI * 2);
-                    if (norm < 0) norm += Math.PI * 2;
-                    lastWinnerIdx = Math.floor(norm / ((Math.PI * 2) / items.length));
-                    const winner = items[lastWinnerIdx];
-                    
-                    // Trigger Efek Confetti saat menang
-                    fireConfetti();
-
-                    document.getElementById('displayWinnerName').innerText = winner.name || "Image Winner!";
-                    document.getElementById('winnerImgContainer').innerHTML = winner.image ? `<img src="${winner.image.src}" style="width:150px; border-radius:10px; margin-bottom:15px">` : "";
-                    document.getElementById('modalWinnerHeader').style.backgroundColor = updatePointerColor();
-                    document.getElementById('winnerModal').style.display = "flex";
-                }
-            }
-            requestAnimationFrame(anim);
-        }
-
-        function removeWinner() {
-            if (lastWinnerIdx > -1) {
-                const name = items[lastWinnerIdx].name || "Image";
-                items.splice(lastWinnerIdx, 1);
-                writeToInput(); closeAll(); showToast(`Removed: ${name}`);
-            }
-        }
-
-        function writeToInput() {
-            namesInput.innerHTML = "";
-            items.forEach((it, idx) => {
-                if (it.image) namesInput.appendChild(it.image.cloneNode());
-                else namesInput.appendChild(document.createTextNode(it.name));
-                if (idx < items.length - 1) namesInput.appendChild(document.createTextNode("\n"));
-            });
+            items = newItems;
+            document.getElementById('countEntries').innerText = items.length;
             drawWheel();
         }
 
-        function shuffleItems() { syncFromVisual(); items.sort(() => Math.random() - 0.5); writeToInput(); }
-        function sortItems() { syncFromVisual(); items.sort((a, b) => (a.name || "Z").localeCompare(b.name || "Z")); writeToInput(); }
-        
-        function showToast(msg) { 
-            const t = document.getElementById('toast'); 
-            document.getElementById('toastMsg').innerText = msg; 
-            t.style.display = "flex"; 
-            setTimeout(() => t.style.display = "none", 3000); 
+        function drawWheel() {
+            ctx.clearRect(0,0,700,700);
+            if(items.length === 0) return;
+            const sliceSize = (Math.PI*2) / items.length;
+            const normRot = (currentRotation % (Math.PI*2));
+            let pIdx = Math.floor((Math.PI*2 - normRot) / sliceSize) % items.length;
+            if(pIdx < 0) pIdx += items.length;
+            pointerEl.style.borderRightColor = colors[pIdx % colors.length] || "#ccc";
+
+            ctx.save(); ctx.translate(350,350); ctx.rotate(currentRotation);
+            if(wheelBg) {
+                ctx.save(); ctx.beginPath(); ctx.arc(0,0,340,0,Math.PI*2); ctx.clip();
+                ctx.drawImage(wheelBg, -350,-350,700,700); ctx.restore();
+            }
+            items.forEach((it, i) => {
+                const angle = i * sliceSize;
+                if(!wheelBg) {
+                    ctx.beginPath(); ctx.fillStyle = colors[i % colors.length]; ctx.moveTo(0,0);
+                    ctx.arc(0,0,340,angle,angle+sliceSize); ctx.fill();
+                    ctx.strokeStyle="#fff"; ctx.lineWidth = 2; ctx.stroke();
+                }
+                ctx.save(); ctx.rotate(angle + sliceSize/2);
+                if(it.image) {
+                    ctx.save(); ctx.beginPath(); ctx.arc(200, 0, 45, 0, Math.PI*2); ctx.clip();
+                    ctx.drawImage(it.image, 155, -45, 90, 90); ctx.restore();
+                } else if(it.name) {
+                    let fontSize = 32; 
+                    ctx.font = `bold ${fontSize}px sans-serif`;
+                    let textWidth = ctx.measureText(it.name).width;
+                    while (textWidth > 240 && fontSize > 8) { fontSize--; ctx.font = `bold ${fontSize}px sans-serif`; textWidth = ctx.measureText(it.name).width; }
+                    ctx.textAlign="right"; ctx.fillStyle="#fff"; ctx.fillText(it.name, 320, fontSize/3);
+                }
+                ctx.restore();
+            });
+            if(centerLogo) {
+                ctx.save(); ctx.beginPath(); ctx.arc(0,0,65,0,Math.PI*2); ctx.clip();
+                ctx.drawImage(centerLogo, -65,-65,130,130); ctx.restore();
+            }
+            ctx.restore();
+            if(!centerLogo) {
+                ctx.save(); ctx.translate(350,350); ctx.beginPath(); ctx.arc(0,0,55,0,Math.PI*2);
+                ctx.fillStyle="white"; ctx.fill(); ctx.fillStyle="#333"; ctx.font="bold 20px sans-serif";
+                ctx.textAlign="center"; ctx.fillText("SPIN", 0, 7); ctx.restore();
+            }
         }
 
-        canvas.onclick = spin;
+        function startIdleSpin() {
+            if (isSpinning || hasBeenSpun) return;
+            currentRotation += 0.005; 
+            drawWheel();
+            idleAnimationFrame = requestAnimationFrame(startIdleSpin);
+        }
+
+        function handleSpinClick() {
+            if(isSpinning || items.length === 0) return;
+            cancelAnimationFrame(idleAnimationFrame);
+            hasBeenSpun = true; 
+            isSpinning = true;
+            
+            // Kunci UI
+            namesInput.contentEditable = "false";
+            document.getElementById('btnShuffle').disabled = true;
+            document.getElementById('btnSort').disabled = true;
+
+            const duration = (parseFloat(document.getElementById('spinDuration').value) || 4.5) * 1000;
+            const extra = (Math.PI*2) * (15 + Math.random()*5);
+            const startRot = currentRotation, start = performance.now();
+            let lastTick = -1;
+
+            function frame(now) {
+                const t = Math.min((now-start)/duration, 1);
+                const ease = 1 - Math.pow(1-t, 4);
+                currentRotation = startRot + extra * ease;
+                const currentIdx = Math.floor(((currentRotation % (Math.PI*2))/(Math.PI*2)) * items.length);
+                if(currentIdx !== lastTick) { tickSound.currentTime = 0; tickSound.play().catch(()=>{}); lastTick = currentIdx; }
+                drawWheel();
+                if(t < 1) requestAnimationFrame(frame);
+                else { 
+                    isSpinning = false; 
+                    namesInput.contentEditable = "true";
+                    document.getElementById('btnShuffle').disabled = false;
+                    document.getElementById('btnSort').disabled = false;
+                    winSound.play().catch(()=>{}); 
+                    processWinner(); 
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+
+        function processWinner() {
+            const sliceSize = (Math.PI*2) / items.length;
+            const normRot = (currentRotation % (Math.PI*2));
+            let winIdx = Math.floor((Math.PI*2 - normRot) / sliceSize) % items.length;
+            if(winIdx < 0) winIdx += items.length;
+            const win = items[winIdx];
+            lastWinnerIdx = winIdx;
+            resultsArr.unshift(win); 
+            updateResultsUI();
+            document.getElementById('displayWinnerName').innerText = win.name || "Winner!";
+            document.getElementById('winnerImgContainer').innerHTML = win.image ? `<img src="${win.image.src}" style="width:120px; border-radius:10px; margin-bottom:15px">` : "";
+            
+            const isAuto = document.getElementById('autoRemoveToggle').checked;
+            const footer = document.getElementById('winnerFooter');
+            if (isAuto) {
+                footer.innerHTML = `<button class="btn-blue" style="width:100%; margin:0;" onclick="closeWin()">OK</button>`;
+                setTimeout(() => { items.splice(lastWinnerIdx, 1); writeBack(); }, 500);
+            } else {
+                footer.innerHTML = `<button onclick="closeWin()" style="background:none; border:none; cursor:pointer; color:#64748b; font-weight:600;">Close</button><button class="btn-blue" style="width:auto; margin:0;" onclick="removeWinner()">Remove Winner</button>`;
+            }
+            document.getElementById('winnerModal').style.display = 'flex';
+            confetti();
+        }
+
+        function updateResultsUI() {
+            resultsList.innerHTML = "";
+            resultsArr.forEach(r => {
+                const div = document.createElement('div'); div.style.padding="10px"; div.style.borderBottom="1px solid #eee";
+                if(r.image) { const img = r.image.cloneNode(); img.style.height="45px"; div.appendChild(img); }
+                else div.innerText = r.name;
+                resultsList.appendChild(div);
+            });
+            document.getElementById('countResults').innerText = resultsArr.length;
+        }
+
+        function removeWinner() { items.splice(lastWinnerIdx, 1); writeBack(); closeWin(); showToast("Winner removed!"); }
+        function writeBack() { 
+            namesInput.innerHTML = ""; 
+            items.forEach(it => { 
+                if(it.image) { 
+                    const wrapper = document.createElement('div'); const img = it.image.cloneNode(); img.className="list-img"; 
+                    wrapper.appendChild(img); namesInput.appendChild(wrapper); 
+                } else namesInput.innerHTML += `<div>${it.name}</div>`; 
+            }); 
+            syncFromVisual(); 
+        }
+        function toggleHide() { document.getElementById('mainControls').classList.toggle('hidden-mode', document.getElementById('hideArea').checked); }
+        function switchTab(t) { const isE = t === 'entries'; namesInput.style.display = isE ? 'block' : 'none'; document.getElementById('entriesButtons').style.display = isE ? 'block' : 'none'; resultsList.style.display = isE ? 'none' : 'block'; document.getElementById('resultsButtons').style.display = isE ? 'none' : 'block'; document.getElementById('tabEntries').className = isE ? 'tab-item active' : 'tab-item'; document.getElementById('tabResults').className = isE ? 'tab-item' : 'tab-item active'; }
+        function goToStep2(t) { activeTarget=t; document.getElementById('modalType').style.display='none'; document.getElementById('modalSource').style.display='flex'; renderGallery(); }
+        function renderGallery() { const g = document.getElementById('galleryGrid'); g.innerHTML=""; abstractImages.forEach(u=>{ const i=document.createElement('img'); i.src=u; i.className="gallery-item"; i.onclick=()=>{ document.querySelectorAll('.gallery-item').forEach(e=>e.classList.remove('selected')); i.classList.add('selected'); selectedGalleryUrl=u; }; g.appendChild(i); }); }
+        function confirmGallerySelection() { if(!selectedGalleryUrl) return; const i=new Image(); i.crossOrigin="anonymous"; i.onload=()=>{ applyImageData(i,selectedGalleryUrl); closeModals(); }; i.src=selectedGalleryUrl; }
+        function applyImageData(i,u) { if(activeTarget==='bg') wheelBg=i; else if(activeTarget==='center') centerLogo=i; else { const w=document.createElement('div'); const li=document.createElement('img'); li.src=u; li.className="list-img"; w.appendChild(li); namesInput.appendChild(w); syncFromVisual(); } drawWheel(); }
+        function triggerFileUpload() { document.getElementById('fileInput').click(); }
+        document.getElementById('fileInput').onchange=(e)=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=(ev)=>{ const i=new Image(); i.onload=()=>{ applyImageData(i,ev.target.result); closeModals(); }; i.src=ev.target.result; }; r.readAsDataURL(f); };
+        function shuffleItems() { if(isSpinning) return; items.sort(()=>Math.random()-0.5); writeBack(); }
+        function sortItems() { if(isSpinning) return; items.sort((a,b)=>(a.name||"Z").localeCompare(b.name||"Z")); writeBack(); }
+        function clearResults() { resultsArr=[]; updateResultsUI(); }
+        function closeModals() { document.getElementById('modalType').style.display='none'; document.getElementById('modalSource').style.display='none'; }
+        function closeWin() { document.getElementById('winnerModal').style.display='none'; }
+
         syncFromVisual();
+        startIdleSpin();
     </script>
 </body>
 </html>
